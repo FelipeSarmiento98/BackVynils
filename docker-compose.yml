@@ -28,8 +28,11 @@ services:
     networks:
       - default
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
 networks:
   default:
     driver: bridge
+    
+volumes:
+  postgres_data:
