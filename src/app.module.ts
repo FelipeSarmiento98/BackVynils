@@ -36,7 +36,7 @@ import { AlbumMusicianModule } from './albummusician/albummusician.module';
   imports: [  
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'db',
+      host: 'backvynils.railway.internal',
       port: 5432,
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASS || 'postgres',
