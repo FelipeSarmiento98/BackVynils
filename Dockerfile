@@ -4,17 +4,16 @@ FROM node:12-alpine
 # Instalar dependencias necesarias para PostgreSQL
 RUN apk add --no-cache postgresql postgresql-client
 
-# Configurar usuario de PostgreSQL
-RUN adduser -D postgres && \
-    mkdir -p /var/lib/postgresql/data && \
+# Crear directorio de datos para PostgreSQL si no existe
+RUN mkdir -p /var/lib/postgresql/data && \
     chown -R postgres:postgres /var/lib/postgresql/data
 
-# Inicializar la base de datos (necesario para Alpine)
+# Inicializar la base de datos como usuario postgres
 USER postgres
 RUN initdb -D /var/lib/postgresql/data
 USER root
 
-# Configurar PostgreSQL para escuchar en todas las interfaces (ruta correcta)
+# Configurar PostgreSQL para escuchar en todas las interfaces
 RUN echo "host all all 0.0.0.0/0 md5" >> /var/lib/postgresql/data/pg_hba.conf && \
     echo "listen_addresses='*'" >> /var/lib/postgresql/data/postgresql.conf
 
@@ -33,10 +32,10 @@ COPY . .
 # Compilar la aplicación
 RUN npm run build
 
-# IMPORTANTE: Crear el script start.sh directamente en la imagen
+# Crear el script start.sh directamente en la imagen
 RUN echo '#!/bin/sh\n\
 \n\
-# Iniciar PostgreSQL en Alpine (método correcto)\n\
+# Iniciar PostgreSQL en Alpine\n\
 echo "Iniciando PostgreSQL..."\n\
 mkdir -p /run/postgresql\n\
 chown -R postgres:postgres /run/postgresql\n\
@@ -48,7 +47,7 @@ sleep 5\n\
 \n\
 # Configurar PostgreSQL\n\
 su postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '"'"'postgres'"'"';\""\n\
-su postgres -c "psql -c \"CREATE DATABASE vinyls;\" || true"\n\
+su postgres -c "psql -c \"CREATE DATABASE vinyls;\" 2>/dev/null || echo \"Base de datos vinyls ya existe\""\n\
 \n\
 # Iniciar la aplicación NestJS\n\
 echo "Iniciando la aplicación..."\n\
