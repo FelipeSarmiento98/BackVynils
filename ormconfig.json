@@ -1,10 +1,10 @@
 {
     "type": "postgres",
-    "host": "backvynils.railway.internal",
+    "host": "${RAILWAY_PRIVATE_DOMAIN}",
     "port": 5432,
-    "username": "postgres",
-    "password": "postgres",
-    "database": "vinyls",
+    "username": "${POSTGRES_USER}",
+    "password": "${POSTGRES_PASSWORD}",
+    "database": "${PGDATABASE}",
     "synchronize": false,
     "logging": false,
     "entities": [
