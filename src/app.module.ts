@@ -50,7 +50,6 @@ import { AlbumMusicianModule } from './albummusician/albummusician.module';
       extra: process.env.USE_SSL === 'true' ? {
         ssl: {
           rejectUnauthorized: false,
-          sslmode: 'require'
         }
       } : undefined
     }),
