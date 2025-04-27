@@ -1,10 +1,10 @@
 {
     "type": "postgres",
-    "host": "${RAILWAY_PRIVATE_DOMAIN}",
+    "host": "localhost",
     "port": 5432,
-    "username": "${POSTGRES_USER}",
-    "password": "${POSTGRES_PASSWORD}",
-    "database": "${PGDATABASE}",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "vinyls",
     "synchronize": false,
     "logging": false,
     "entities": [
