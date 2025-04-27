@@ -1,25 +1,34 @@
-# Build stage
-FROM node:12-alpine AS builder
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm install --quiet
-
-COPY . .
-
-RUN npm run build
-
-# Production stage
+# Usa una imagen base de Alpine
 FROM node:12-alpine
 
+# Instalar dependencias necesarias para PostgreSQL
+RUN apk add --no-cache postgresql postgresql-client
+
+# Configurar PostgreSQL para escuchar en localhost
+RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/pg_hba.conf && \
+    echo "listen_addresses='*'" >> /etc/postgresql/postgresql.conf
+
+# Crear directorio de trabajo
 WORKDIR /usr/src/app
 
+# Copiar archivos de package.json y package-lock.json
 COPY package*.json ./
 
-RUN npm ci --only=production
+# Instalar dependencias
+RUN npm install --quiet
 
-COPY --from=builder /usr/src/app/dist ./dist
+# Copiar el resto de archivos de la aplicación
+COPY . .
 
-CMD ["npm", "run", "start:prod"]
+# Compilar la aplicación
+RUN npm run build
+
+# Copiar script de inicio
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Exponer puerto para NestJS
+EXPOSE 3000
+
+# Comando para iniciar servicios
+CMD ["/start.sh"]
