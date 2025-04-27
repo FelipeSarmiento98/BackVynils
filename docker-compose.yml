@@ -3,9 +3,7 @@ version: "3.8"
 services:
   web:
     build: .
-    command: npm run start:prod
-    volumes:
-      - /usr/src/app
+    command: npm run start:prod  # Esperar a la base de datos antes de iniciar la app
     environment:
       DB_HOST: "db"
       DB_USER: "postgres"
@@ -16,21 +14,22 @@ services:
       - "3000:3000"
     depends_on:
       - db
-    links:
-      - db
     networks:
       - default
-
 
   db:
     image: postgres
     environment:
-      - POSTGRES_DB=vinyls
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_DB: vinyls
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     networks:
       - default
     volumes:
-      - ./pgdata:/var/lib/postgresql/data/
+      - ./pgdata:/var/lib/postgresql/data
+
+networks:
+  default:
+    driver: bridge
