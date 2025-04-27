@@ -7,11 +7,12 @@ services:
     volumes:
       - /usr/src/app
     environment:
-      DB_HOST: "backvynils.railway.internal"
-      DB_USER: "postgres"
-      DB_PASS: "postgres"
-      DB_NAME: "vinyls"
-      USE_SSL: "false"
+     PGHOST: ${PGHOST}
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGDATABASE: ${PGDATABASE}
+      PGPORT: ${PGPORT}
+      USE_SSL: "true"
     ports:
       - "3000:3000"
     depends_on:
@@ -21,17 +22,6 @@ services:
     networks:
       - default
 
-
-  db:
-    image: postgres
-    container_name: db
-    environment:
-      - POSTGRES_DB=vinyls
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - default
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data/
+  networks:
+    default:
+  
