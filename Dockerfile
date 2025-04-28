@@ -1,4 +1,4 @@
-# Usa una imagen base de Alpine
+# Usar una imagen base más compatible
 FROM node:12-alpine
 
 # Instalar dependencias necesarias para PostgreSQL
@@ -32,35 +32,21 @@ COPY . .
 # Compilar la aplicación
 RUN npm run build
 
-# Crear script personalizado - NOMBRE DIFERENTE para evitar conflicto
-RUN echo '#!/bin/sh\n\
-\n\
-# Iniciar PostgreSQL en Alpine\n\
-echo "Iniciando PostgreSQL..."\n\
-mkdir -p /run/postgresql\n\
-chown -R postgres:postgres /run/postgresql\n\
-su postgres -c "pg_ctl -D /var/lib/postgresql/data -l /var/lib/postgresql/logfile start"\n\
-\n\
-# Esperar a que PostgreSQL esté listo\n\
-echo "Esperando a que PostgreSQL esté listo..."\n\
-sleep 5\n\
-\n\
-# Configurar PostgreSQL\n\
-su postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '"'"'postgres'"'"';\""\n\
-su postgres -c "psql -c \"CREATE DATABASE vinyls;\" 2>/dev/null || echo \"Base de datos vinyls ya existe\""\n\
-\n\
-# Iniciar la aplicación NestJS\n\
-echo "Iniciando la aplicación..."\n\
-cd /usr/src/app\n\
-exec npm run start:prod\n\
-' > /app-start.sh
-
-# Hacer que el script sea ejecutable
-RUN chmod +x /app-start.sh
+# SOLUCIÓN CRÍTICA: Crear un script de shell simple pero efectivo
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'set -e' >> /entrypoint.sh && \
+    echo 'mkdir -p /run/postgresql' >> /entrypoint.sh && \
+    echo 'chown -R postgres:postgres /run/postgresql' >> /entrypoint.sh && \
+    echo 'su postgres -c "pg_ctl -D /var/lib/postgresql/data -l /var/lib/postgresql/logfile start"' >> /entrypoint.sh && \
+    echo 'sleep 5' >> /entrypoint.sh && \
+    echo 'su postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '"'"'postgres'"'"';\""' >> /entrypoint.sh && \
+    echo 'su postgres -c "psql -c \"CREATE DATABASE vinyls;\" 2>/dev/null || echo \"Base de datos vinyls ya existe\""' >> /entrypoint.sh && \
+    echo 'cd /usr/src/app' >> /entrypoint.sh && \
+    echo 'npm run start:prod' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
 
 # Exponer puerto para NestJS
 EXPOSE 3000
 
-# CAMBIO IMPORTANTE: No usar CMD con el script directamente
-# En su lugar, usar la opción ENTRYPOINT para reemplazar el entrypoint predeterminado
-ENTRYPOINT ["/app-start.sh"]
+# Usar el script de inicio simplificado
+CMD ["/bin/sh", "/entrypoint.sh"]
