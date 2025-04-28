@@ -32,7 +32,7 @@ COPY . .
 # Compilar la aplicación
 RUN npm run build
 
-# Crear el script start.sh directamente en la imagen
+# Crear script personalizado - NOMBRE DIFERENTE para evitar conflicto
 RUN echo '#!/bin/sh\n\
 \n\
 # Iniciar PostgreSQL en Alpine\n\
@@ -53,13 +53,14 @@ su postgres -c "psql -c \"CREATE DATABASE vinyls;\" 2>/dev/null || echo \"Base d
 echo "Iniciando la aplicación..."\n\
 cd /usr/src/app\n\
 exec npm run start:prod\n\
-' > /start.sh
+' > /app-start.sh
 
 # Hacer que el script sea ejecutable
-RUN chmod +x /start.sh
+RUN chmod +x /app-start.sh
 
 # Exponer puerto para NestJS
 EXPOSE 3000
 
-# Comando para iniciar servicios
-CMD ["/start.sh"]
+# CAMBIO IMPORTANTE: No usar CMD con el script directamente
+# En su lugar, usar la opción ENTRYPOINT para reemplazar el entrypoint predeterminado
+ENTRYPOINT ["/app-start.sh"]
